@@ -123,5 +123,3 @@ def occupy_teacher_id(teacher_id, full_name, telegram_id):
     conn.commit()
     conn.close()
     return "Учитель успешно зарегистрирован ✅"
-def delete_teacher(teacher_id):
-
