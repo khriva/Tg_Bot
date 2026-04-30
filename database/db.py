@@ -32,6 +32,17 @@ def init_db():
         FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id) ON DELETE CASCADE
     )
     """)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS homework (
+    teacher_id FOREIGN KEY,
+    student_id FOREIGN KEY,
+    hw_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    hw_date_created DATE DEFAULT CURRENT_DATE,
+    hw_text TEXT,
+    deadline_dateDATE,
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+    
+    )""")
 
     conn.commit()
     conn.close()
@@ -123,3 +134,11 @@ def occupy_teacher_id(teacher_id, full_name, telegram_id):
     conn.commit()
     conn.close()
     return "Учитель успешно зарегистрирован ✅"
+def show_students(teacher_id):
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT full_name FROM students WHERE tg_id = ?", (teacher_id,))
+    row = cursor.fetchone()
+    return row
+
