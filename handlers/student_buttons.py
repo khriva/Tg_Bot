@@ -9,12 +9,13 @@ from aiogram.fsm.context import FSMContext
 from database.db import generate_student_id, get_teacher_by_id,get_all_teachers,occupy_teacher_id
 from database.db import add_student
 from aiogram.types import CallbackQuery
-
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 student_router = Router()
 
 class StudentStates(StatesGroup):
     waiting_for_teacher = State()
     waiting_for_name = State()
+
 
 @student_router.callback_query(lambda c: c.data == "role_student")
 async def option1_callback(callback: types.CallbackQuery,state : FSMContext):

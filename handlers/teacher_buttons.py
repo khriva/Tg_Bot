@@ -11,13 +11,19 @@ from aiogram.fsm.context import FSMContext
 from database.db import generate_student_id, get_teacher_by_id, occupy_teacher_id
 from database.db import add_student, show_students
 from aiogram.types import CallbackQuery
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+
 
 teacher_router = Router()
+
 class TeacherStates(StatesGroup):
     waiting_for_id = State()
     waiting_for_name = State()
 
-
+class AddHomework(StatesGroup):
+    waiting_for_text = State()
+    waiting_for_student = State()
 @teacher_router.callback_query(lambda c: c.data == "role_teacher")
 async def option2_callback(callback: types.CallbackQuery, state = FSMContext):
      await callback.answer()
@@ -52,8 +58,34 @@ async def show_menu(message: types.Message):
 async def get_students(callback: types.CallbackQuery):
     teacher_tg_id =callback.from_user.id
     await callback.answer()
-    names =  "\n".join(show_students(teacher_tg_id))
-    await callback.message.answer(names)
+    names =  (show_students(teacher_tg_id))
+    if names:
+        text = "\n".join([i["full_name"] for i in names])
+        await callback.message.answer(text)
+    else:
+        await callback.message.answer("Список учеников пуст.")
+
+@teacher_router.callback_query(lambda c: c.data == "add_hw")
+async def add_hw(callback: types.CallbackQuery, state : FSMContext):
+    builder = InlineKeyboardBuilder()
+    teacher_tg_id =callback.from_user.id
+    await callback.answer()
+    students = (show_students(teacher_tg_id))
+    for user in students :
+        builder.button(
+            text=user['full_name'],
+            callback_data=f"user_info_{user['student_id']}"
+        )
+    builder.adjust(1)
+    await callback.message.answer("Выберите ученика:", reply_markup=builder.as_markup())
+    await state.set_state(AddHomework.waiting_for_student)
+
+@teacher_router.callback_query(AddHomework.waiting_for_student)
+
+
+
+
+
 
 
 
